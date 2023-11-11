@@ -11,7 +11,6 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import torch
-import wandb
 import random
 import time
 
