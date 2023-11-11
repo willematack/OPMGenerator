@@ -29,7 +29,7 @@ class Train():
 
     ###Initialization
 
-    def __init__(self, env: Environment, transitionmemory: Buffer, MODELDIRECTORY: str):
+    def __init__(self, env: Environment):
         """Initialize the training class which involves an iteration method and a learning method
         """
         
@@ -38,20 +38,11 @@ class Train():
         self.time_steps = self.env.time_steps
         self.max_pressure = self.env.max_pressure
 
-        #Start wandb and keep track of changes in hypers
-        run = wandb.init(project='OPM_Generator')
-
-        #Initialize the memory
-        self.transitionmemory = transitionmemory
-
     ###Iterating methods
     
-    def iterate(self, n_iter = 100, n_save = 10, n_plot  = 50, n_break = 50):
+    def iterate(self, n_iter = 100):
         """Run through OPM taking random actions and add states to memory 
         """
-
-        #Track the network using wandb
-        wandb.watch((self.simulator), log = 'all', log_freq = 100)
 
         for i in tqdm(range(n_iter+1)):
 
@@ -69,15 +60,10 @@ class Train():
 
                 #Step in the encironment and store the observed tuple
                 state_ = self.env.step(action, state, step)
-                self.transitionmemory.store_transition(state, action, state_)
+                print("Iteration: " + str(i) + " Step: " + str(step) + " Action: " + str(np.array(action)) + " State: " + str(torch.mean(state_[1,:,:]).item()))
 
                 state = state_.clone()
 
-                #Learn from the tuples stored
-                self.learn()
-                 
-            if np.mod(i, self.transitionmemory.save_frequency) == 0 and i > 0:
-                self.transitionmemory.save_buffer() 
 
 
     
