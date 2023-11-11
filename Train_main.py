@@ -7,18 +7,16 @@
 import datetime
 from datetime import datetime
 
-import Memory
 import Train
 import OPM
 
-from Memory import Buffer
 from OPM import Environment
 from Train import Train
 
 #Define the folder in which the base OPM file is stored in and the name of the file
 
-#OPMFILEDIRECTORY = '/home/elijahf/computecan/Generator/'
-OPMFILEDIRECTORY = '/mnt/c/elijah/OPMGenerator/Generator/RESTART'
+OPMFILEDIRECTORY = '/home/elijahf/computecan/Generator/'
+#OPMFILEDIRECTORY = '/mnt/c/elijah/OPMGenerator/RESTART'
 OPMFILENAME = 'RESTART'
 
 #Initialize the environment

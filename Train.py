@@ -20,10 +20,8 @@ import torch.optim as optim
 import torch.nn as nn
 
 import OPM
-import Memory 
 
 from OPM import Environment
-from Memory import Buffer
 
 class Train():
 
@@ -32,7 +30,6 @@ class Train():
     def __init__(self, env: Environment):
         """Initialize the training class which involves an iteration method and a learning method
         """
-        
         #Set parameters to be used in run
         self.env = env
         self.time_steps = self.env.time_steps
