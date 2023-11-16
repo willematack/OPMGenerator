@@ -6,10 +6,6 @@
 
 import numpy as np
 import copy
-import tqdm
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 import torch
 import random
 import time
@@ -40,7 +36,7 @@ class Train():
         """Run through OPM taking random actions and add states to memory 
         """
 
-        for i in tqdm(range(n_iter+1)):
+        for i in range(n_iter+1):
 
             #Reset environment (reset file to be used by flow)
             self.env.reset()
@@ -55,7 +51,7 @@ class Train():
                 action = torch.rand(2)
 
                 #Step in the encironment and store the observed tuple
-                state_ = self.env.step(action, state, step)
+                state_ = self.env.step(action, step)
                 print("Iteration: " + str(i) + " Step: " + str(step) + " Action: " + str(np.array(action)) + " State: " + str(torch.mean(state_[1,:,:]).item()))
 
                 state = state_.clone()
