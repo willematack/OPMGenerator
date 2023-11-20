@@ -1,10 +1,8 @@
 #!/bin/bash
 #SBATCH --mem=32G
-#SBATCH --nodes=1
+#SBATCH --nodes=5
 #SBATCH --ntasks-per-node=8
 #SBATCH --time=00:15:00
-#SBATCH --mail-user=elijah.french@mail.utoronto.ca
-#SBATCH --mail-type=ALL
 
 module load python/3.9
 
