@@ -20,7 +20,7 @@ from datetime import datetime, timedelta
 
 class Environment:
     def __init__(self, OPMFILEDIRECTORY: str, OPMFILENAME: str, process_id: int, startdate = datetime(2023, 1, 1), time_steps = 12, OPMtextoutput = False, 
-                 min_injection = 1_000, max_injection = 4_000, min_production = 1_000, max_production = 5_000, max_pressure_OPM = 10_000, 
+                 min_injection = 100, max_injection = 4_000, min_production = 100, max_production = 5_000, max_pressure_OPM = 10_000, 
                  dt = 'year'):
         
         #Change to relevant directory (where OPMFILENAME is stored)
@@ -166,7 +166,7 @@ class Environment:
         return state_
 
     def run_flow(self):
-        #command = ['flow', os.getenv('SLURM_TMPDIR') + self.name, '--enable-opm-rst-file=True']
+        command = ['flow', self.OPMFILEDIRECTORY + '/' +  self.name, '--enable-opm-rst-file=True']
         with open(os.devnull, 'wb') as devnull:
             try:
                 subprocess.check_call(self.command, stdout=devnull, stderr=subprocess.STDOUT)

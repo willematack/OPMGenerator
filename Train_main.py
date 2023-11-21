@@ -8,10 +8,13 @@ import os
 import datetime
 from datetime import datetime
 import concurrent.futures
+import multiprocessing as mp
 
 import Train
 import OPM
+import Memory
 
+from Memory import Buffer
 from OPM import Environment
 from Train import Train
 
@@ -20,7 +23,8 @@ from Train import Train
 OPMFILEDIRECTORY = os.getenv('SLURM_TMPDIR') 
 OPMFILENAME = 'RESTART'
 
-num_cores = 2
+num_cores = 1
+n_iters = [0 for id in range(num_cores)]
 
 #Initialize the environments
 
@@ -28,22 +32,34 @@ E = [Environment(OPMFILEDIRECTORY = OPMFILEDIRECTORY , OPMFILENAME = OPMFILENAME
             time_steps = 12, min_injection = 10, max_injection = 30_000, min_production = 10, max_production =  6000, 
             max_pressure_OPM = 10_000, dt = '2year') for id in range(num_cores)]
 
-#Initialize the generators
+TRANSITIONDIRECTORY = os.getenv('SLURM_TMPDIR')
+
+#Initialize a transition buffer
+
+#D = [Buffer(TRANSITIONDIRECTORY = TRANSITIONDIRECTORY, reset_buffer  = False, save_frequency = 1) for _ in range(num_cores)]
+
+#Function to iterate generators
+
 def run_training(id, n_iter):
+    """Run iterator
+    """
     try:
-        generator = Train(env=E[id])
-        generator.iterate(id, n_iter)
+        generator = Train(env = E[id])
+        generator.iterate(num_cores, id, n_iter)
     except Exception as e:
         print(f"Exception in run_training: {e}")
-        raise  # Rethrow the exception to ensure it's caught by the main process
+        raise  
 
 #Iterate
 
 if __name__ == '__main__':
-    with concurrent.futures.ThreadPoolExecutor() as executor:
+
+    with concurrent.futures.ProcessPoolExecutor() as executor:
         ids = list(range(num_cores))
-        n_iters = [2, 2]
         futures = [executor.submit(run_training, ids[i], n_iters[i]) for i in range(num_cores)]
+
+        for future in concurrent.futures.as_completed(futures):
+            future.result()
 
 
 

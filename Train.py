@@ -9,6 +9,8 @@ import copy
 import torch
 import random
 import time
+import datetime
+from datetime import datetime
 
 from tqdm import tqdm
 import torch.optim as optim
@@ -31,7 +33,7 @@ class Train():
 
     ###Iterating methods
     
-    def iterate(self, id, n_iter = 100):
+    def iterate(self, num_cores, id, n_iter = 100):
         """Run through OPM taking random actions and add states to memory 
         """
 
@@ -47,13 +49,14 @@ class Train():
             for step in range(0, self.env.time_steps+1):
 
                 #Take a random action
-                action = torch.rand(2)
+                action = torch.rand(2*num_cores)
 
                 #Step in the encironment and store the observed tuple
-                state_ = self.env.step(action, step)
-                print("Core: " + str(id) + " Iteration: " + str(i) + " Step: " + str(step) + " Action: " + str(np.array(action)) + " State: " + str(torch.mean(state_[1,:,:]).item()))
+                state_ = self.env.step(action[2*id:2*id+2], step)
+                print("Time: " + datetime.now().strftime("%H:%M:%S") + " Core: " + str(id) + " Iteration: " + str(i) + " Step: " + str(step) + " Action: " + str(np.array(action[2*id:2*id+2])) + " State: " + str(torch.mean(state_[1,:,:]).item()))
 
                 state = state_.clone()
+
 
 
 
