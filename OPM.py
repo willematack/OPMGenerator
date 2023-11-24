@@ -156,8 +156,8 @@ class Environment:
             input.write('END')
 
         #Run OPM with this file
-        #self.run_flow()
-        os.system(self.command)
+        self.run_flow()
+        #os.system(self.command)
 
         #Get new state
         state_ = self.get_new_state()
@@ -169,7 +169,7 @@ class Environment:
         command = ['flow', self.OPMFILEDIRECTORY + '/' +  self.name, '--enable-opm-rst-file=True']
         with open(os.devnull, 'wb') as devnull:
             try:
-                subprocess.check_call(self.command, stdout=devnull, stderr=subprocess.STDOUT)
+                subprocess.check_call(command, stdout=devnull, stderr=subprocess.STDOUT)
             except:
                 pass
 

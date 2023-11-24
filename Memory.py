@@ -4,6 +4,7 @@
 
 import torch
 
+
 class Buffer():
 
     def __init__(self, TRANSITIONDIRECTORY: str, max_size = 500, save_frequency = 100):
@@ -19,6 +20,14 @@ class Buffer():
 
         self.mem_cntr_initial = self.mem_cntr
 
+    def initiate_storage(self):
+        '''Reset the transition tuples (necessary at the beginning of generation)
+        '''
+        
+        torch.save(torch.zeros(size = (1,2,60,60)), self.file_path+'/state.pt')
+        torch.save(torch.zeros(size = (1,2,60,60)), self.file_path+'/state_.pt')
+        torch.save(torch.zeros(size = (1,2)), self.file_path+'/state.pt')
+
     def store_transition(self, state, action, new_state):
         '''Store a state, action, and new state to the buffer
         '''
@@ -29,12 +38,3 @@ class Buffer():
         self.action_memory[index] = action.detach()
 
         self.mem_cntr += 1
-
-    def save_buffer(self):
-        '''Save the current buffer 
-        '''
-        
-        torch.save(torch.tensor(self.mem_cntr).detach(), self.file_path + '/mem_cntr.pt')
-        torch.save(self.state_memory.detach(), self.file_path + '/state.pt')
-        torch.save(self.new_state_memory.detach(), self.file_path + '/state_.pt')
-        torch.save(self.action_memory.detach(), self.file_path + '/action.pt')

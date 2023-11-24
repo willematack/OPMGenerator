@@ -5,6 +5,7 @@
 #Import necessary packages and classes 
 
 import os
+import torch
 import datetime
 from datetime import datetime
 import concurrent.futures
@@ -23,7 +24,7 @@ from Train import Train
 OPMFILEDIRECTORY = os.getenv('SLURM_TMPDIR') 
 OPMFILENAME = 'RESTART'
 
-num_cores = 1
+num_cores = 2
 n_iters = [0 for id in range(num_cores)]
 
 #Initialize the environments
@@ -32,11 +33,17 @@ E = [Environment(OPMFILEDIRECTORY = OPMFILEDIRECTORY , OPMFILENAME = OPMFILENAME
             time_steps = 12, min_injection = 10, max_injection = 30_000, min_production = 10, max_production =  6000, 
             max_pressure_OPM = 10_000, dt = '2year') for id in range(num_cores)]
 
-TRANSITIONDIRECTORY = os.getenv('SLURM_TMPDIR')
+#Define the folder where transitions are stored
+
+TRANSITIONDIRECTORY = os.getenv('SLURM_TMPDIR') + '/Transitions'
+print(TRANSITIONDIRECTORY)
 
 #Initialize a transition buffer
 
-#D = [Buffer(TRANSITIONDIRECTORY = TRANSITIONDIRECTORY, reset_buffer  = False, save_frequency = 1) for _ in range(num_cores)]
+D = [Buffer(TRANSITIONDIRECTORY = TRANSITIONDIRECTORY, reset_buffer  = False, save_frequency = 1) for _ in range(num_cores)]
+
+#Code to reset transition buffer
+Buffer.initiate_storage()
 
 #Function to iterate generators
 
@@ -44,22 +51,30 @@ def run_training(id, n_iter):
     """Run iterator
     """
     try:
-        generator = Train(env = E[id])
+        generator = Train(env = E[id], transitionmemory = D[id])
         generator.iterate(num_cores, id, n_iter)
     except Exception as e:
         print(f"Exception in run_training: {e}")
         raise  
-
-#Iterate
 
 if __name__ == '__main__':
 
     with concurrent.futures.ProcessPoolExecutor() as executor:
         ids = list(range(num_cores))
         futures = [executor.submit(run_training, ids[i], n_iters[i]) for i in range(num_cores)]
+        s = torch.load(TRANSITIONDIRECTORY+'/state.pt')
+        a = torch.load(TRANSITIONDIRECTORY+'/state_.pt')
+        s_ = torch.load(TRANSITIONDIRECTORY+'/action.pt')
 
         for future in concurrent.futures.as_completed(futures):
-            future.result()
+            state, action, state_ = future.result()
+            torch.cat((s, state), 1)
+            torch.cat((a, action), 1)
+            torch.cat((s_, state_), 1)
+
+    torch.save(s, TRANSITIONDIRECTORY+'/state.pt')
+    torch.save(a, TRANSITIONDIRECTORY+'/action.pt')
+    torch.save(s_, TRANSITIONDIRECTORY+'/state_.pt')
 
 
 
