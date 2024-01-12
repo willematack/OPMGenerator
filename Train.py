@@ -1,5 +1,5 @@
 """
-@author: Elijah French
+@author: Elijah French/Willem Atack
 """
 
 #Import necessary packages and classes
