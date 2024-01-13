@@ -1,5 +1,5 @@
 """
-@author: Elijah French/Willem Atack
+@author: Elijah French
 """
 
 #Import necessary packages and classes
@@ -42,7 +42,7 @@ class Train():
         """Run through OPM taking random actions and add states to memory 
         """
 
-        for i in range(n_iter+1):
+        for i in range(n_iter):
 
             #Reset environment (reset file to be used by flow)
             self.env.reset()
@@ -58,13 +58,8 @@ class Train():
 
                 #Step in the encironment and store the observed tuple
                 state_ = self.env.step(action[2*id:2*id+2], step)
-                self.transitionmemory.store_transition(state, action, state_)
-                print("Time: " + datetime.now().strftime("%H:%M:%S") + " Core: " + str(id) + " Iteration: " + str(i) + " Step: " + str(step) + " Action: " + str(np.array(action[2*id:2*id+2])) + " State: " + str(torch.mean(state_[1,:,:]).item()))
+                self.transitionmemory.store_transition(state, action[2*id:2*id+2], state_)
 
                 state = state_.clone()
-
+                
         return self.transitionmemory.state_memory, self.transitionmemory.action_memory, self.transitionmemory.new_state_memory
-
-
-
-    
